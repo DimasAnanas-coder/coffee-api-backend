@@ -19,7 +19,7 @@ pip install -r requirements.txt
 Скопируйте `.env.example` в `.env`, чтобы при необходимости изменить настройки, и запустите сервер:
 
 ```bash
-fastapi dev main.py
+fastapi dev app/main.py
 ```
 
 Интерактивная документация доступна по адресу <http://127.0.0.1:8000/docs>, альтернативная — <http://127.0.0.1:8000/redoc>.
