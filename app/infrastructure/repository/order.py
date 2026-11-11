@@ -1,4 +1,4 @@
-from .schemas import Order
+from ...schemas import Order
 
 
 class OrderRepository:

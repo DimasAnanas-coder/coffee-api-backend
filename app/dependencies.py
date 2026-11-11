@@ -4,8 +4,8 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, Query
 
 from .config import Settings, get_settings
+from .infrastructure.repository.order import OrderRepository
 from .ports import OrderRepositoryProtocol
-from .repository import OrderRepository
 from .service import OrderService
 
 
