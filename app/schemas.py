@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -16,7 +17,16 @@ class OrderStatus(str, Enum):
     completed = "completed"
 
 
+class User(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int = Field(gt=0, description="Идентификатор пользователя", examples=[1])
+    email: str = Field(min_length=1, description="Email пользователя", examples=["irina@example.com"])
+    balance: Decimal = Field(ge=0, description="Баланс пользователя", examples=["500.00"])
+
+
 class OrderCreate(BaseModel):
+    user_id: int = Field(gt=0, description="Идентификатор пользователя", examples=[1])
     drink: str = Field(min_length=1, description="Название напитка из меню", examples=["Латте"])
     size: DrinkSize = Field(description="Размер напитка", examples=["medium"])
     quantity: int = Field(gt=0, description="Количество напитков", examples=[2])
@@ -35,6 +45,7 @@ class Order(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(description="Идентификатор заказа", examples=[1])
+    user_id: int = Field(gt=0, description="Идентификатор пользователя", examples=[1])
     drink: str = Field(description="Название напитка", examples=["Латте"])
     size: DrinkSize = Field(description="Размер напитка", examples=["medium"])
     quantity: int = Field(gt=0, description="Количество напитков", examples=[2])
