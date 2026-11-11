@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from .exceptions import OrderAlreadyCompletedError, OrderNotFoundError
-from .repository import OrderRepositoryProtocol
+from .ports import OrderRepositoryProtocol
 from .schemas import Order, OrderCreate, OrderStatus, OrderUpdate
 
 
