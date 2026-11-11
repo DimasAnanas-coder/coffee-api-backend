@@ -2,9 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from .config import get_settings
-from .dependencies import SettingsDep
+from .dependencies import RepositoryDep, SettingsDep
 from .exceptions import OrderAlreadyCompletedError, OrderNotFoundError
-from .dependencies import get_repository
 from .routers import orders
 
 settings = get_settings()
@@ -40,7 +39,6 @@ def root() -> dict[str, str]:
 
 
 @app.get("/info", tags=["Сервис"], summary="Получить информацию о сервисе")
-def info(config: SettingsDep) -> dict[str, str | int]:
+def info(config: SettingsDep, repository: RepositoryDep) -> dict[str, str | int]:
     """Возвращает название сервиса и число заказов в памяти."""
-    repository = get_repository()
     return {"name": config.app_name, "orders_count": len(repository.get_all())}

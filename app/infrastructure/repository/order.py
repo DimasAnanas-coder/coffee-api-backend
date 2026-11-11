@@ -1,9 +1,13 @@
 from ...schemas import Order
+from sqlalchemy.orm import Session
+
+_orders: list[Order] = []
 
 
 class OrderRepository:
-    def __init__(self) -> None:
-        self._orders: list[Order] = []
+    def __init__(self, db: Session) -> None:
+        self.db = db
+        self._orders = _orders
 
     def get_all(self) -> list[Order]:
         return list(self._orders) # чтобы вернуть копию списка, а не ссылку на него

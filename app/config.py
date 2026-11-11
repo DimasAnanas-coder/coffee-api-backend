@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "Учёт заказов кофейни"
+    database_url: str = "postgresql+psycopg://user:password@localhost:5432/coffee_db"
     default_page_size: int = Field(default=10, ge=1)
     max_page_size: int = Field(default=50, ge=1)
 

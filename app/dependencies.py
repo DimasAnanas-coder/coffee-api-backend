@@ -1,17 +1,20 @@
-from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, Query
+from sqlalchemy.orm import Session
 
 from .config import Settings, get_settings
+from .infrastructure.database import get_db
 from .infrastructure.repository.order import OrderRepository
 from .ports import OrderRepositoryProtocol
 from .service import OrderService
 
 
-@lru_cache
-def get_repository() -> OrderRepositoryProtocol:
-    return OrderRepository()
+DbSession = Annotated[Session, Depends(get_db)]
+
+
+def get_repository(db: DbSession) -> OrderRepositoryProtocol:
+    return OrderRepository(db)
 
 
 RepositoryDep = Annotated[OrderRepositoryProtocol, Depends(get_repository)]
