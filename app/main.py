@@ -2,9 +2,9 @@ from fastapi import FastAPI
 
 from .config import get_settings
 from .dependencies import OrderRepositoryDep, SettingsDep
-from .exceptions import OrderAlreadyCompletedError, OrderNotFoundError
+from .exceptions.order import OrderAlreadyCompletedError, OrderNotFoundError
 from .routers import orders, users
-from .user_exceptions import UserAlreadyExistsError, UserNotFoundError
+from .exceptions.user import UserAlreadyExistsError, UserNotFoundError
 
 settings = get_settings()
 

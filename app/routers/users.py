@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from ..dependencies import UserServiceDep
 from ..schemas import User, UserCreate
-from ..user_exceptions import UserAlreadyExistsError, UserNotFoundError
+from ..exceptions.user import UserAlreadyExistsError, UserNotFoundError
 
 router = APIRouter(prefix="/users", tags=["Пользователи"])
 

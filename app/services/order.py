@@ -1,6 +1,6 @@
-from .exceptions import OrderAlreadyCompletedError, OrderNotFoundError
-from .ports import OrderRepositoryProtocol
-from .schemas import Order, OrderCreate, OrderStatus, OrderUpdate
+from ..exceptions.order import OrderAlreadyCompletedError, OrderNotFoundError
+from ..ports import OrderRepositoryProtocol
+from ..schemas import Order, OrderCreate, OrderStatus, OrderUpdate
 
 
 class OrderService:

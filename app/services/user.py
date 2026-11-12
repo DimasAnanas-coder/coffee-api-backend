@@ -1,6 +1,6 @@
-from .ports import UserRepositoryProtocol
-from .schemas import User, UserCreate
-from .user_exceptions import UserAlreadyExistsError, UserNotFoundError
+from ..exceptions.user import UserAlreadyExistsError, UserNotFoundError
+from ..ports import UserRepositoryProtocol
+from ..schemas import User, UserCreate
 
 
 class UserService:

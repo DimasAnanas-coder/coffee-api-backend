@@ -7,10 +7,9 @@ from .config import Settings, get_settings
 from .infrastructure.database import get_db
 from .infrastructure.repository.order import OrderRepository
 from .ports import OrderRepositoryProtocol
-from .service import OrderService
 from .infrastructure.repository.user import UserRepository
 from .ports import UserRepositoryProtocol
-from .user_service import UserService
+from .services import OrderService, UserService
 
 
 DbSession = Annotated[Session, Depends(get_db)]

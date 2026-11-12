@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 
 from ..dependencies import OrderServiceDep, PaginationDep
-from ..exceptions import OrderAlreadyCompletedError, OrderNotFoundError
+from ..exceptions.order import OrderAlreadyCompletedError, OrderNotFoundError
 from ..schemas import Order, OrderCreate, OrderStatus, OrderUpdate
 
 router = APIRouter(prefix="/orders", tags=["Заказы"])
