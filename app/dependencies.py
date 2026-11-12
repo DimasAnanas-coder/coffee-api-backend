@@ -8,6 +8,9 @@ from .infrastructure.database import get_db
 from .infrastructure.repository.order import OrderRepository
 from .ports import OrderRepositoryProtocol
 from .service import OrderService
+from .infrastructure.repository.user import UserRepository
+from .ports import UserRepositoryProtocol
+from .user_service import UserService
 
 
 DbSession = Annotated[Session, Depends(get_db)]
@@ -20,8 +23,19 @@ def get_order_repository(db: DbSession) -> OrderRepositoryProtocol:
 OrderRepositoryDep = Annotated[OrderRepositoryProtocol, Depends(get_order_repository)]
 
 
+def get_user_repository(db: DbSession) -> UserRepositoryProtocol:
+    return UserRepository(db)
+
+
+UserRepositoryDep = Annotated[UserRepositoryProtocol, Depends(get_user_repository)]
+
+
 def get_order_service(repository: OrderRepositoryDep) -> OrderService:
     return OrderService(repository)
+
+
+def get_user_service(repository: UserRepositoryDep) -> UserService:
+    return UserService(repository)
 
 
 def pagination_params(
@@ -38,5 +52,6 @@ def pagination_params(
 
 
 OrderServiceDep = Annotated[OrderService, Depends(get_order_service)]
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 PaginationDep = Annotated[dict[str, int | None], Depends(pagination_params)]

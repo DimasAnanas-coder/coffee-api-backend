@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from .schemas import Order, OrderCreate, OrderStatus
+from .schemas import Order, OrderCreate, OrderStatus, User, UserCreate
 
 
 class BaseRepositoryProtocol(Protocol):
@@ -28,3 +28,13 @@ class OrderRepositoryProtocol(BaseRepositoryProtocol, Protocol):
     def update(self, order_id: int, update_data: dict) -> Order | None: ...
 
     def delete(self, order_id: int) -> Order | None: ...
+
+
+class UserRepositoryProtocol(BaseRepositoryProtocol, Protocol):
+    """Описывает операции хранилища пользователей."""
+
+    def get_by_id(self, user_id: int) -> User | None: ...
+
+    def get_by_email(self, email: str) -> User | None: ...
+
+    def add(self, user_data: UserCreate) -> User: ...
