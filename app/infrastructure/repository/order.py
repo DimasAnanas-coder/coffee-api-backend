@@ -1,37 +1,61 @@
-from ...schemas import Order
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-_orders: list[Order] = []
+from ...infrastructure.models import Order as OrderModel
+from ...schemas import Order, OrderCreate, OrderStatus
 
 
 class OrderRepository:
     def __init__(self, db: Session) -> None:
         self.db = db
-        self._orders = _orders
 
-    def get_all(self) -> list[Order]:
-        return list(self._orders) # чтобы вернуть копию списка, а не ссылку на него
+    def get_all(
+        self,
+        order_status: OrderStatus | None = None,
+        limit: int | None = None,
+        offset: int = 0,
+    ) -> list[Order]:
+        statement = select(OrderModel).order_by(OrderModel.id)
+        if order_status is not None:
+            statement = statement.where(OrderModel.status == order_status.value)
+        if limit is not None:
+            statement = statement.limit(limit)
+        statement = statement.offset(offset)
+        records = self.db.scalars(statement).all()
+        return [Order.model_validate(record) for record in records]
 
     def get_by_id(self, order_id: int) -> Order | None:
-        for order in self._orders:
-            if order.id == order_id:
-                return order
-        return None
+        record = self.db.get(OrderModel, order_id)
+        return Order.model_validate(record) if record is not None else None
 
-    def add(self, order: Order) -> Order:
-        self._orders.append(order)
-        return order
+    def add(self, order_data: OrderCreate) -> Order:
+        record = OrderModel(**order_data.model_dump())
+        self.db.add(record)
+        self.db.flush()
+        self.db.refresh(record)
+        return Order.model_validate(record)
 
     def update(self, order_id: int, update_data: dict) -> Order | None:
-        for index, order in enumerate(self._orders):
-            if order.id == order_id:
-                updated_order = Order.model_validate({**order.model_dump(), **update_data})
-                self._orders[index] = updated_order
-                return updated_order
-        return None
+        record = self.db.get(OrderModel, order_id)
+        if record is None:
+            return None
+        for field, value in update_data.items():
+            setattr(record, field, value.value if isinstance(value, OrderStatus) else value)
+        self.db.flush()
+        self.db.refresh(record)
+        return Order.model_validate(record)
 
     def delete(self, order_id: int) -> Order | None:
-        for index, order in enumerate(self._orders):
-            if order.id == order_id:
-                return self._orders.pop(index)
-        return None
+        record = self.db.get(OrderModel, order_id)
+        if record is None:
+            return None
+        result = Order.model_validate(record)
+        self.db.delete(record)
+        self.db.flush()
+        return result
+
+    def commit(self) -> None:
+        self.db.commit()
+
+    def rollback(self) -> None:
+        self.db.rollback()
