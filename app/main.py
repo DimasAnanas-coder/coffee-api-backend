@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 
 from .config import get_settings
 from .dependencies import OrderRepositoryDep, SettingsDep
@@ -16,33 +15,10 @@ app = FastAPI(
 )
 app.include_router(orders.router)
 app.include_router(users.router)
-
-
-@app.exception_handler(OrderNotFoundError)
-async def order_not_found_handler(request: Request, exc: OrderNotFoundError) -> JSONResponse:
-    return JSONResponse(
-        status_code=404,
-        content={"detail": f"Заказ с id={exc.order_id} не найден"},
-    )
-
-
-@app.exception_handler(OrderAlreadyCompletedError)
-async def order_already_completed_handler(request: Request, exc: OrderAlreadyCompletedError) -> JSONResponse:
-    return JSONResponse(
-        status_code=409,
-        content={"detail": f"Заказ {exc.order_id} уже выполнен и не может быть изменён"},
-    )
-
-
-@app.exception_handler(UserNotFoundError)
-async def user_not_found_handler(request: Request, exc: UserNotFoundError) -> JSONResponse:
-    detail = f"Пользователь с id={exc.user_id} не найден" if exc.user_id is not None else f"Пользователь {exc.email} не найден"
-    return JSONResponse(status_code=404, content={"detail": detail})
-
-
-@app.exception_handler(UserAlreadyExistsError)
-async def user_already_exists_handler(request: Request, exc: UserAlreadyExistsError) -> JSONResponse:
-    return JSONResponse(status_code=409, content={"detail": f"Пользователь с email={exc.email} уже существует"})
+app.add_exception_handler(OrderNotFoundError, orders.order_not_found_handler)
+app.add_exception_handler(OrderAlreadyCompletedError, orders.order_already_completed_handler)
+app.add_exception_handler(UserNotFoundError, users.user_not_found_handler)
+app.add_exception_handler(UserAlreadyExistsError, users.user_already_exists_handler)
 
 
 @app.get("/", tags=["Сервис"], summary="Проверить работу сервиса")

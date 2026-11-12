@@ -1,11 +1,27 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Query, Response, status
+from fastapi import APIRouter, Query, Request, Response, status
+from fastapi.responses import JSONResponse
 
 from ..dependencies import OrderServiceDep, PaginationDep
+from ..exceptions import OrderAlreadyCompletedError, OrderNotFoundError
 from ..schemas import Order, OrderCreate, OrderStatus, OrderUpdate
 
 router = APIRouter(prefix="/orders", tags=["Заказы"])
+
+
+async def order_not_found_handler(request: Request, exc: OrderNotFoundError) -> JSONResponse:
+    return JSONResponse(
+        status_code=404,
+        content={"detail": f"Заказ с id={exc.order_id} не найден"},
+    )
+
+
+async def order_already_completed_handler(request: Request, exc: OrderAlreadyCompletedError) -> JSONResponse:
+    return JSONResponse(
+        status_code=409,
+        content={"detail": f"Заказ {exc.order_id} уже выполнен и не может быть изменён"},
+    )
 
 
 @router.post("", response_model=Order, status_code=status.HTTP_201_CREATED, summary="Создать заказ")
