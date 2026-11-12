@@ -1,14 +1,11 @@
 from sqlalchemy import select
-from sqlalchemy.orm import Session
 
 from ...infrastructure.models import Order as OrderModel
 from ...schemas import Order, OrderCreate, OrderStatus
+from .base import BaseRepository
 
 
-class OrderRepository:
-    def __init__(self, db: Session) -> None:
-        self.db = db
-
+class OrderRepository(BaseRepository):
     def get_all(
         self,
         order_status: OrderStatus | None = None,
@@ -53,9 +50,3 @@ class OrderRepository:
         self.db.delete(record)
         self.db.flush()
         return result
-
-    def commit(self) -> None:
-        self.db.commit()
-
-    def rollback(self) -> None:
-        self.db.rollback()

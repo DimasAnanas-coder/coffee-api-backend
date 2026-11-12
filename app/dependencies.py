@@ -13,14 +13,14 @@ from .service import OrderService
 DbSession = Annotated[Session, Depends(get_db)]
 
 
-def get_repository(db: DbSession) -> OrderRepositoryProtocol:
+def get_order_repository(db: DbSession) -> OrderRepositoryProtocol:
     return OrderRepository(db)
 
 
-RepositoryDep = Annotated[OrderRepositoryProtocol, Depends(get_repository)]
+OrderRepositoryDep = Annotated[OrderRepositoryProtocol, Depends(get_order_repository)]
 
 
-def get_service(repository: RepositoryDep) -> OrderService:
+def get_order_service(repository: OrderRepositoryDep) -> OrderService:
     return OrderService(repository)
 
 
@@ -37,6 +37,6 @@ def pagination_params(
     return {"limit": config.default_page_size if limit is None else limit, "offset": offset}
 
 
-ServiceDep = Annotated[OrderService, Depends(get_service)]
+OrderServiceDep = Annotated[OrderService, Depends(get_order_service)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 PaginationDep = Annotated[dict[str, int | None], Depends(pagination_params)]

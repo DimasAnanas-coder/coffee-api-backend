@@ -3,7 +3,15 @@ from typing import Protocol
 from .schemas import Order, OrderCreate, OrderStatus
 
 
-class OrderRepositoryProtocol(Protocol):
+class BaseRepositoryProtocol(Protocol):
+    """Операции транзакции, общие для всех репозиториев."""
+
+    def commit(self) -> None: ...
+
+    def rollback(self) -> None: ...
+
+
+class OrderRepositoryProtocol(BaseRepositoryProtocol, Protocol):
     """Описывает операции хранилища, нужные сервисному слою."""
 
     def get_all(
@@ -20,7 +28,3 @@ class OrderRepositoryProtocol(Protocol):
     def update(self, order_id: int, update_data: dict) -> Order | None: ...
 
     def delete(self, order_id: int) -> Order | None: ...
-
-    def commit(self) -> None: ...
-
-    def rollback(self) -> None: ...
