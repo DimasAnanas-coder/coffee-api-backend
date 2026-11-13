@@ -9,3 +9,9 @@ class UserAlreadyExistsError(Exception):
     def __init__(self, email: str) -> None:
         self.email = email
         super().__init__(email)
+
+
+class UserHasOrdersError(Exception):
+    def __init__(self, user_id: int) -> None:
+        self.user_id = user_id
+        super().__init__(user_id)

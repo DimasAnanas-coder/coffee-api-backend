@@ -7,15 +7,17 @@ from .config import Settings, get_settings
 from .infrastructure.database import get_db
 from .infrastructure.repository.order import OrderRepository
 from .ports import OrderRepositoryProtocol
-from .infrastructure.repository.user import UserRepository
-from .ports import UserRepositoryProtocol
-from .services import UserService
 from .use_cases import (
     CreateOrderUseCase,
+    CreateUserUseCase,
     DeleteOrderUseCase,
+    DeleteUserUseCase,
     GetOrderUseCase,
+    GetUserUseCase,
     ListOrdersUseCase,
+    ListUsersUseCase,
     UpdateOrderUseCase,
+    UpdateUserUseCase,
 )
 
 
@@ -27,17 +29,6 @@ def get_order_repository(db: DbSession) -> OrderRepositoryProtocol:
 
 
 OrderRepositoryDep = Annotated[OrderRepositoryProtocol, Depends(get_order_repository)]
-
-
-def get_user_repository(db: DbSession) -> UserRepositoryProtocol:
-    return UserRepository(db)
-
-
-UserRepositoryDep = Annotated[UserRepositoryProtocol, Depends(get_user_repository)]
-
-
-def get_user_service(repository: UserRepositoryDep) -> UserService:
-    return UserService(repository, repository.db)
 
 
 def get_create_order_use_case(db: DbSession) -> CreateOrderUseCase:
@@ -60,10 +51,30 @@ def get_delete_order_use_case(db: DbSession) -> DeleteOrderUseCase:
     return DeleteOrderUseCase(db)
 
 
+def get_create_user_use_case(db: DbSession) -> CreateUserUseCase:
+    return CreateUserUseCase(db)
+
+
+def get_list_users_use_case(db: DbSession) -> ListUsersUseCase:
+    return ListUsersUseCase(db)
+
+
+def get_user_use_case(db: DbSession) -> GetUserUseCase:
+    return GetUserUseCase(db)
+
+
+def get_update_user_use_case(db: DbSession) -> UpdateUserUseCase:
+    return UpdateUserUseCase(db)
+
+
+def get_delete_user_use_case(db: DbSession) -> DeleteUserUseCase:
+    return DeleteUserUseCase(db)
+
+
 def pagination_params(
     config: Annotated[Settings, Depends(get_settings)],
-    limit: Annotated[int | None, Query(ge=1, description="Число заказов на странице")] = None,
-    offset: Annotated[int, Query(ge=0, description="Число пропускаемых заказов")] = 0,
+    limit: Annotated[int | None, Query(ge=1, description="Число записей на странице")] = None,
+    offset: Annotated[int, Query(ge=0, description="Число пропускаемых записей")] = 0,
 ) -> dict[str, int | None]:
     if limit is not None and limit > config.max_page_size:
         raise HTTPException(
@@ -73,11 +84,15 @@ def pagination_params(
     return {"limit": config.default_page_size if limit is None else limit, "offset": offset}
 
 
-UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 CreateOrderUseCaseDep = Annotated[CreateOrderUseCase, Depends(get_create_order_use_case)]
 ListOrdersUseCaseDep = Annotated[ListOrdersUseCase, Depends(get_list_orders_use_case)]
 GetOrderUseCaseDep = Annotated[GetOrderUseCase, Depends(get_order_use_case)]
 UpdateOrderUseCaseDep = Annotated[UpdateOrderUseCase, Depends(get_update_order_use_case)]
 DeleteOrderUseCaseDep = Annotated[DeleteOrderUseCase, Depends(get_delete_order_use_case)]
+CreateUserUseCaseDep = Annotated[CreateUserUseCase, Depends(get_create_user_use_case)]
+ListUsersUseCaseDep = Annotated[ListUsersUseCase, Depends(get_list_users_use_case)]
+GetUserUseCaseDep = Annotated[GetUserUseCase, Depends(get_user_use_case)]
+UpdateUserUseCaseDep = Annotated[UpdateUserUseCase, Depends(get_update_user_use_case)]
+DeleteUserUseCaseDep = Annotated[DeleteUserUseCase, Depends(get_delete_user_use_case)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 PaginationDep = Annotated[dict[str, int | None], Depends(pagination_params)]

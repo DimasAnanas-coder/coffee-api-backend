@@ -23,6 +23,11 @@ class UserCreate(BaseModel):
     balance: Decimal = Field(ge=0, description="Начальный баланс", examples=["500.00"])
 
 
+class UserUpdate(BaseModel):
+    email: str | None = Field(default=None, min_length=1, description="Email пользователя")
+    balance: Decimal | None = Field(default=None, ge=0, description="Баланс пользователя")
+
+
 class OrderCreate(BaseModel):
     user_id: int = Field(gt=0, description="Идентификатор пользователя", examples=[1])
     amount: Decimal = Field(gt=0, description="Сумма заказа", examples=["120.00"])

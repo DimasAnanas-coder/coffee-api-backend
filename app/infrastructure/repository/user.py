@@ -8,6 +8,12 @@ from .base import BaseRepository
 
 
 class UserRepository(BaseRepository):
+    def get_all(self, limit: int | None = None, offset: int = 0) -> list[User]:
+        statement = select(UserModel).order_by(UserModel.id).offset(offset)
+        if limit is not None:
+            statement = statement.limit(limit)
+        return [User.model_validate(record) for record in self.db.scalars(statement).all()]
+
     def get_by_id(self, user_id: int) -> User | None:
         record = self.db.get(UserModel, user_id)
         return User.model_validate(record) if record is not None else None
@@ -35,3 +41,22 @@ class UserRepository(BaseRepository):
         self.db.flush()
         self.db.refresh(record)
         return User.model_validate(record)
+
+    def update(self, user_id: int, update_data: dict) -> User | None:
+        record = self.db.get(UserModel, user_id)
+        if record is None:
+            return None
+        for field, value in update_data.items():
+            setattr(record, field, value)
+        self.db.flush()
+        self.db.refresh(record)
+        return User.model_validate(record)
+
+    def delete(self, user_id: int) -> User | None:
+        record = self.db.get(UserModel, user_id)
+        if record is None:
+            return None
+        user = User.model_validate(record)
+        self.db.delete(record)
+        self.db.flush()
+        return user

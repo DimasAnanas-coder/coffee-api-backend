@@ -4,7 +4,7 @@ from .config import get_settings
 from .dependencies import OrderRepositoryDep, SettingsDep
 from .exceptions.order import InsufficientBalanceError, OrderAlreadyCompletedError, OrderNotFoundError
 from .routers import orders, users
-from .exceptions.user import UserAlreadyExistsError, UserNotFoundError
+from .exceptions.user import UserAlreadyExistsError, UserHasOrdersError, UserNotFoundError
 
 settings = get_settings()
 
@@ -20,6 +20,7 @@ app.add_exception_handler(OrderAlreadyCompletedError, orders.order_already_compl
 app.add_exception_handler(InsufficientBalanceError, orders.insufficient_balance_handler)
 app.add_exception_handler(UserNotFoundError, users.user_not_found_handler)
 app.add_exception_handler(UserAlreadyExistsError, users.user_already_exists_handler)
+app.add_exception_handler(UserHasOrdersError, users.user_has_orders_handler)
 
 
 @app.get("/", tags=["Сервис"], summary="Проверить работу сервиса")
