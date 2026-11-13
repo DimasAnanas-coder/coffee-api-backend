@@ -3,7 +3,14 @@ from typing import Annotated
 from fastapi import APIRouter, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 
-from ..dependencies import CreateOrderUseCaseDep, OrderServiceDep, PaginationDep
+from ..dependencies import (
+    CreateOrderUseCaseDep,
+    DeleteOrderUseCaseDep,
+    GetOrderUseCaseDep,
+    ListOrdersUseCaseDep,
+    PaginationDep,
+    UpdateOrderUseCaseDep,
+)
 from ..exceptions.order import InsufficientBalanceError, OrderAlreadyCompletedError, OrderNotFoundError
 from ..schemas import Order, OrderCreate, OrderStatus, OrderUpdate
 
@@ -36,28 +43,28 @@ def create_order(order_data: OrderCreate, use_case: CreateOrderUseCaseDep) -> Or
 
 @router.get("", response_model=list[Order], summary="Получить список заказов")
 def list_orders(
-    service: OrderServiceDep,
+    use_case: ListOrdersUseCaseDep,
     pagination: PaginationDep,
     order_status: Annotated[OrderStatus | None, Query(alias="status", description="Фильтр по статусу")] = None,
 ) -> list[Order]:
     """Возвращает заказы с необязательными фильтром и постраничной выдачей."""
-    return service.list_orders(order_status=order_status, **pagination)
+    return use_case.execute(order_status=order_status, **pagination)
 
 
 @router.get("/{order_id}", response_model=Order, summary="Получить заказ по ID")
-def get_order(order_id: int, service: OrderServiceDep) -> Order:
+def get_order(order_id: int, use_case: GetOrderUseCaseDep) -> Order:
     """Возвращает один заказ по идентификатору."""
-    return service.get_order(order_id)
+    return use_case.execute(order_id)
 
 
 @router.patch("/{order_id}", response_model=Order, summary="Частично обновить заказ")
-def update_order(order_id: int, order_data: OrderUpdate, service: OrderServiceDep) -> Order:
+def update_order(order_id: int, order_data: OrderUpdate, use_case: UpdateOrderUseCaseDep) -> Order:
     """Обновляет только переданные поля заказа."""
-    return service.update_order(order_id, order_data)
+    return use_case.execute(order_id, order_data)
 
 
 @router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT, response_class=Response, summary="Отменить заказ")
-def delete_order(order_id: int, service: OrderServiceDep) -> Response:
+def delete_order(order_id: int, use_case: DeleteOrderUseCaseDep) -> Response:
     """Удаляет заказ и возвращает ответ без тела."""
-    service.delete_order(order_id)
+    use_case.execute(order_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

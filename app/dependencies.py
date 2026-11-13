@@ -9,8 +9,14 @@ from .infrastructure.repository.order import OrderRepository
 from .ports import OrderRepositoryProtocol
 from .infrastructure.repository.user import UserRepository
 from .ports import UserRepositoryProtocol
-from .services import OrderService, UserService
-from .use_cases import CreateOrderUseCase
+from .services import UserService
+from .use_cases import (
+    CreateOrderUseCase,
+    DeleteOrderUseCase,
+    GetOrderUseCase,
+    ListOrdersUseCase,
+    UpdateOrderUseCase,
+)
 
 
 DbSession = Annotated[Session, Depends(get_db)]
@@ -30,16 +36,28 @@ def get_user_repository(db: DbSession) -> UserRepositoryProtocol:
 UserRepositoryDep = Annotated[UserRepositoryProtocol, Depends(get_user_repository)]
 
 
-def get_order_service(repository: OrderRepositoryDep) -> OrderService:
-    return OrderService(repository, repository.db)
-
-
 def get_user_service(repository: UserRepositoryDep) -> UserService:
     return UserService(repository, repository.db)
 
 
 def get_create_order_use_case(db: DbSession) -> CreateOrderUseCase:
     return CreateOrderUseCase(db)
+
+
+def get_list_orders_use_case(db: DbSession) -> ListOrdersUseCase:
+    return ListOrdersUseCase(db)
+
+
+def get_order_use_case(db: DbSession) -> GetOrderUseCase:
+    return GetOrderUseCase(db)
+
+
+def get_update_order_use_case(db: DbSession) -> UpdateOrderUseCase:
+    return UpdateOrderUseCase(db)
+
+
+def get_delete_order_use_case(db: DbSession) -> DeleteOrderUseCase:
+    return DeleteOrderUseCase(db)
 
 
 def pagination_params(
@@ -55,8 +73,11 @@ def pagination_params(
     return {"limit": config.default_page_size if limit is None else limit, "offset": offset}
 
 
-OrderServiceDep = Annotated[OrderService, Depends(get_order_service)]
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 CreateOrderUseCaseDep = Annotated[CreateOrderUseCase, Depends(get_create_order_use_case)]
+ListOrdersUseCaseDep = Annotated[ListOrdersUseCase, Depends(get_list_orders_use_case)]
+GetOrderUseCaseDep = Annotated[GetOrderUseCase, Depends(get_order_use_case)]
+UpdateOrderUseCaseDep = Annotated[UpdateOrderUseCase, Depends(get_update_order_use_case)]
+DeleteOrderUseCaseDep = Annotated[DeleteOrderUseCase, Depends(get_delete_order_use_case)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 PaginationDep = Annotated[dict[str, int | None], Depends(pagination_params)]
