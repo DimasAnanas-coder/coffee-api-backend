@@ -6,7 +6,8 @@ from sqlalchemy.orm import Session
 from .config import Settings, get_settings
 from .infrastructure.database import get_db
 from .infrastructure.repository.order import OrderRepository
-from .ports import OrderRepositoryProtocol
+from .infrastructure.unit_of_work import SqlAlchemyUnitOfWork
+from .ports import OrderRepositoryProtocol, UnitOfWorkProtocol
 from .use_cases import (
     CreateOrderUseCase,
     CreateUserUseCase,
@@ -31,44 +32,51 @@ def get_order_repository(db: DbSession) -> OrderRepositoryProtocol:
 OrderRepositoryDep = Annotated[OrderRepositoryProtocol, Depends(get_order_repository)]
 
 
-def get_create_order_use_case(db: DbSession) -> CreateOrderUseCase:
-    return CreateOrderUseCase(db)
+def get_unit_of_work(db: DbSession) -> UnitOfWorkProtocol:
+    return SqlAlchemyUnitOfWork(db)
 
 
-def get_list_orders_use_case(db: DbSession) -> ListOrdersUseCase:
-    return ListOrdersUseCase(db)
+UnitOfWorkDep = Annotated[UnitOfWorkProtocol, Depends(get_unit_of_work)]
 
 
-def get_order_use_case(db: DbSession) -> GetOrderUseCase:
-    return GetOrderUseCase(db)
+def get_create_order_use_case(uow: UnitOfWorkDep) -> CreateOrderUseCase:
+    return CreateOrderUseCase(uow)
 
 
-def get_update_order_use_case(db: DbSession) -> UpdateOrderUseCase:
-    return UpdateOrderUseCase(db)
+def get_list_orders_use_case(uow: UnitOfWorkDep) -> ListOrdersUseCase:
+    return ListOrdersUseCase(uow)
 
 
-def get_delete_order_use_case(db: DbSession) -> DeleteOrderUseCase:
-    return DeleteOrderUseCase(db)
+def get_order_use_case(uow: UnitOfWorkDep) -> GetOrderUseCase:
+    return GetOrderUseCase(uow)
 
 
-def get_create_user_use_case(db: DbSession) -> CreateUserUseCase:
-    return CreateUserUseCase(db)
+def get_update_order_use_case(uow: UnitOfWorkDep) -> UpdateOrderUseCase:
+    return UpdateOrderUseCase(uow)
 
 
-def get_list_users_use_case(db: DbSession) -> ListUsersUseCase:
-    return ListUsersUseCase(db)
+def get_delete_order_use_case(uow: UnitOfWorkDep) -> DeleteOrderUseCase:
+    return DeleteOrderUseCase(uow)
 
 
-def get_user_use_case(db: DbSession) -> GetUserUseCase:
-    return GetUserUseCase(db)
+def get_create_user_use_case(uow: UnitOfWorkDep) -> CreateUserUseCase:
+    return CreateUserUseCase(uow)
 
 
-def get_update_user_use_case(db: DbSession) -> UpdateUserUseCase:
-    return UpdateUserUseCase(db)
+def get_list_users_use_case(uow: UnitOfWorkDep) -> ListUsersUseCase:
+    return ListUsersUseCase(uow)
 
 
-def get_delete_user_use_case(db: DbSession) -> DeleteUserUseCase:
-    return DeleteUserUseCase(db)
+def get_user_use_case(uow: UnitOfWorkDep) -> GetUserUseCase:
+    return GetUserUseCase(uow)
+
+
+def get_update_user_use_case(uow: UnitOfWorkDep) -> UpdateUserUseCase:
+    return UpdateUserUseCase(uow)
+
+
+def get_delete_user_use_case(uow: UnitOfWorkDep) -> DeleteUserUseCase:
+    return DeleteUserUseCase(uow)
 
 
 def pagination_params(

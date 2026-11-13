@@ -1,7 +1,9 @@
 from decimal import Decimal
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
+from ...exceptions.user import UserHasOrdersError
 from ...infrastructure.models import User as UserModel
 from ...schemas import User, UserCreate
 from .base import BaseRepository
@@ -58,5 +60,8 @@ class UserRepository(BaseRepository):
             return None
         user = User.model_validate(record)
         self.db.delete(record)
-        self.db.flush()
+        try:
+            self.db.flush()
+        except IntegrityError as exc:
+            raise UserHasOrdersError(user_id) from exc
         return user

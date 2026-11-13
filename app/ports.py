@@ -1,11 +1,12 @@
 from decimal import Decimal
+from types import TracebackType
 from typing import Protocol
 
 from .schemas import Order, OrderCreate, OrderStatus, User, UserCreate
 
 
 class OrderRepositoryProtocol(Protocol):
-    """Описывает операции хранилища, нужные сервисному слою."""
+    """Описывает операции хранилища, нужные прикладному слою."""
 
     def get_all(
         self,
@@ -41,3 +42,19 @@ class UserRepositoryProtocol(Protocol):
     def delete(self, user_id: int) -> User | None: ...
 
     def set_balance(self, user_id: int, balance: Decimal) -> None: ...
+
+
+class UnitOfWorkProtocol(Protocol):
+    """Даёт use case репозитории и управляет общей транзакцией."""
+
+    orders: OrderRepositoryProtocol
+    users: UserRepositoryProtocol
+
+    def __enter__(self) -> "UnitOfWorkProtocol": ...
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None: ...

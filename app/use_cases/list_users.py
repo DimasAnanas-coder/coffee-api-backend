@@ -1,12 +1,10 @@
-from sqlalchemy.orm import Session
-
-from ..infrastructure.repository.user import UserRepository
+from ..ports import UnitOfWorkProtocol
 from ..schemas import User
 
 
 class ListUsersUseCase:
-    def __init__(self, session: Session) -> None:
-        self.users = UserRepository(session)
+    def __init__(self, uow: UnitOfWorkProtocol) -> None:
+        self.uow = uow
 
     def execute(self, limit: int | None = None, offset: int = 0) -> list[User]:
-        return self.users.get_all(limit=limit, offset=offset)
+        return self.uow.users.get_all(limit=limit, offset=offset)

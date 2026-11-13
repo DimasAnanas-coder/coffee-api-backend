@@ -1,12 +1,10 @@
-from sqlalchemy.orm import Session
-
-from ..infrastructure.repository.order import OrderRepository
+from ..ports import UnitOfWorkProtocol
 from ..schemas import Order, OrderStatus
 
 
 class ListOrdersUseCase:
-    def __init__(self, session: Session) -> None:
-        self.orders = OrderRepository(session)
+    def __init__(self, uow: UnitOfWorkProtocol) -> None:
+        self.uow = uow
 
     def execute(
         self,
@@ -14,4 +12,4 @@ class ListOrdersUseCase:
         limit: int | None = None,
         offset: int = 0,
     ) -> list[Order]:
-        return self.orders.get_all(order_status=order_status, limit=limit, offset=offset)
+        return self.uow.orders.get_all(order_status=order_status, limit=limit, offset=offset)
