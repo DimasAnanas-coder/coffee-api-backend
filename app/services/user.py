@@ -1,22 +1,20 @@
+from sqlalchemy.orm import Session
+
 from ..exceptions.user import UserAlreadyExistsError, UserNotFoundError
 from ..ports import UserRepositoryProtocol
 from ..schemas import User, UserCreate
 
 
 class UserService:
-    def __init__(self, repository: UserRepositoryProtocol) -> None:
+    def __init__(self, repository: UserRepositoryProtocol, session: Session) -> None:
         self.repository = repository
+        self.session = session
 
     def create_user(self, user_data: UserCreate) -> User:
-        try:
+        with self.session.begin():
             if self.repository.get_by_email(user_data.email) is not None:
                 raise UserAlreadyExistsError(user_data.email)
-            user = self.repository.add(user_data)
-            self.repository.commit()
-            return user
-        except Exception:
-            self.repository.rollback()
-            raise
+            return self.repository.add(user_data)
 
     def get_user(self, user_id: int) -> User:
         user = self.repository.get_by_id(user_id)

@@ -10,6 +10,7 @@ from .ports import OrderRepositoryProtocol
 from .infrastructure.repository.user import UserRepository
 from .ports import UserRepositoryProtocol
 from .services import OrderService, UserService
+from .use_cases import CreateOrderUseCase
 
 
 DbSession = Annotated[Session, Depends(get_db)]
@@ -30,11 +31,15 @@ UserRepositoryDep = Annotated[UserRepositoryProtocol, Depends(get_user_repositor
 
 
 def get_order_service(repository: OrderRepositoryDep) -> OrderService:
-    return OrderService(repository)
+    return OrderService(repository, repository.db)
 
 
 def get_user_service(repository: UserRepositoryDep) -> UserService:
-    return UserService(repository)
+    return UserService(repository, repository.db)
+
+
+def get_create_order_use_case(db: DbSession) -> CreateOrderUseCase:
+    return CreateOrderUseCase(db)
 
 
 def pagination_params(
@@ -52,5 +57,6 @@ def pagination_params(
 
 OrderServiceDep = Annotated[OrderService, Depends(get_order_service)]
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+CreateOrderUseCaseDep = Annotated[CreateOrderUseCase, Depends(get_create_order_use_case)]
 SettingsDep = Annotated[Settings, Depends(get_settings)]
 PaginationDep = Annotated[dict[str, int | None], Depends(pagination_params)]

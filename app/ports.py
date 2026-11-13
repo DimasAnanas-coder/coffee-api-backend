@@ -1,17 +1,10 @@
+from decimal import Decimal
 from typing import Protocol
 
 from .schemas import Order, OrderCreate, OrderStatus, User, UserCreate
 
 
-class BaseRepositoryProtocol(Protocol):
-    """Операции транзакции, общие для всех репозиториев."""
-
-    def commit(self) -> None: ...
-
-    def rollback(self) -> None: ...
-
-
-class OrderRepositoryProtocol(BaseRepositoryProtocol, Protocol):
+class OrderRepositoryProtocol(Protocol):
     """Описывает операции хранилища, нужные сервисному слою."""
 
     def get_all(
@@ -30,11 +23,15 @@ class OrderRepositoryProtocol(BaseRepositoryProtocol, Protocol):
     def delete(self, order_id: int) -> Order | None: ...
 
 
-class UserRepositoryProtocol(BaseRepositoryProtocol, Protocol):
+class UserRepositoryProtocol(Protocol):
     """Описывает операции хранилища пользователей."""
 
     def get_by_id(self, user_id: int) -> User | None: ...
 
+    def get_by_id_for_update(self, user_id: int) -> User | None: ...
+
     def get_by_email(self, email: str) -> User | None: ...
 
     def add(self, user_data: UserCreate) -> User: ...
+
+    def set_balance(self, user_id: int, balance: Decimal) -> None: ...

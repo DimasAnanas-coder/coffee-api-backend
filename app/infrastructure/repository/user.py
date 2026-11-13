@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from sqlalchemy import select
 
 from ...infrastructure.models import User as UserModel
@@ -10,10 +12,22 @@ class UserRepository(BaseRepository):
         record = self.db.get(UserModel, user_id)
         return User.model_validate(record) if record is not None else None
 
+    def get_by_id_for_update(self, user_id: int) -> User | None:
+        statement = select(UserModel).where(UserModel.id == user_id).with_for_update()
+        record = self.db.scalar(statement)
+        return User.model_validate(record) if record is not None else None
+
     def get_by_email(self, email: str) -> User | None:
         statement = select(UserModel).where(UserModel.email == email)
         record = self.db.scalar(statement)
         return User.model_validate(record) if record is not None else None
+
+    def set_balance(self, user_id: int, balance: Decimal) -> None:
+        record = self.db.get(UserModel, user_id)
+        if record is None:
+            return
+        record.balance = balance
+        self.db.flush()
 
     def add(self, user_data: UserCreate) -> User:
         record = UserModel(**user_data.model_dump())

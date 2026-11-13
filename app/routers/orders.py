@@ -3,8 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Query, Request, Response, status
 from fastapi.responses import JSONResponse
 
-from ..dependencies import OrderServiceDep, PaginationDep
-from ..exceptions.order import OrderAlreadyCompletedError, OrderNotFoundError
+from ..dependencies import CreateOrderUseCaseDep, OrderServiceDep, PaginationDep
+from ..exceptions.order import InsufficientBalanceError, OrderAlreadyCompletedError, OrderNotFoundError
 from ..schemas import Order, OrderCreate, OrderStatus, OrderUpdate
 
 router = APIRouter(prefix="/orders", tags=["Заказы"])
@@ -24,10 +24,14 @@ async def order_already_completed_handler(request: Request, exc: OrderAlreadyCom
     )
 
 
+async def insufficient_balance_handler(request: Request, exc: InsufficientBalanceError) -> JSONResponse:
+    return JSONResponse(status_code=409, content={"detail": f"Недостаточно средств у пользователя {exc.user_id}"})
+
+
 @router.post("", response_model=Order, status_code=status.HTTP_201_CREATED, summary="Создать заказ")
-def create_order(order_data: OrderCreate, service: OrderServiceDep) -> Order:
+def create_order(order_data: OrderCreate, use_case: CreateOrderUseCaseDep) -> Order:
     """Создаёт заказ со статусом pending и временем создания."""
-    return service.create_order(order_data)
+    return use_case.execute(order_data)
 
 
 @router.get("", response_model=list[Order], summary="Получить список заказов")

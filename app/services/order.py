@@ -1,20 +1,18 @@
+from sqlalchemy.orm import Session
+
 from ..exceptions.order import OrderAlreadyCompletedError, OrderNotFoundError
 from ..ports import OrderRepositoryProtocol
 from ..schemas import Order, OrderCreate, OrderStatus, OrderUpdate
 
 
 class OrderService:
-    def __init__(self, repository: OrderRepositoryProtocol) -> None:
+    def __init__(self, repository: OrderRepositoryProtocol, session: Session) -> None:
         self.repository = repository
+        self.session = session
 
     def create_order(self, order_data: OrderCreate) -> Order:
-        try:
-            order = self.repository.add(order_data)
-            self.repository.commit()
-            return order
-        except Exception:
-            self.repository.rollback()
-            raise
+        with self.session.begin():
+            return self.repository.add(order_data)
 
     def list_orders(
         self,
@@ -35,28 +33,20 @@ class OrderService:
         return order
 
     def update_order(self, order_id: int, order_data: OrderUpdate) -> Order:
-        try:
+        with self.session.begin():
             order = self.get_order(order_id)
             self._ensure_not_completed(order)
             updated_order = self.repository.update(order_id, order_data.model_dump(exclude_unset=True))
             if updated_order is None:
                 raise OrderNotFoundError(order_id)
-            self.repository.commit()
             return updated_order
-        except Exception:
-            self.repository.rollback()
-            raise
 
     def delete_order(self, order_id: int) -> None:
-        try:
+        with self.session.begin():
             order = self.get_order(order_id)
             self._ensure_not_completed(order)
             if self.repository.delete(order_id) is None:
                 raise OrderNotFoundError(order_id)
-            self.repository.commit()
-        except Exception:
-            self.repository.rollback()
-            raise
 
     @staticmethod
     def _ensure_not_completed(order: Order) -> None:
