@@ -14,16 +14,19 @@ class User(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int = Field(gt=0, description="Идентификатор пользователя", examples=[1])
+    name: str | None = Field(default=None, description="Имя пользователя", examples=["Ирина"])
     email: str = Field(min_length=1, description="Email пользователя", examples=["irina@example.com"])
     balance: Decimal = Field(ge=0, description="Баланс пользователя", examples=["500.00"])
 
 
 class UserCreate(BaseModel):
+    name: str | None = Field(default=None, description="Имя пользователя", examples=["Ирина"])
     email: str = Field(min_length=1, description="Email пользователя", examples=["irina@example.com"])
     balance: Decimal = Field(ge=0, description="Начальный баланс", examples=["500.00"])
 
 
 class UserUpdate(BaseModel):
+    name: str | None = Field(default=None, description="Имя пользователя")
     email: str | None = Field(default=None, min_length=1, description="Email пользователя")
     balance: Decimal | None = Field(default=None, ge=0, description="Баланс пользователя")
 

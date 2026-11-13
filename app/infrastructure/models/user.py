@@ -10,6 +10,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     balance: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
 
