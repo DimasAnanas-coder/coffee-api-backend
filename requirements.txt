@@ -2,3 +2,4 @@ fastapi[standard]>=0.115,<1.0
 SQLAlchemy>=2.0,<2.1
 psycopg[binary]
 alembic
+pytest>=8.0,<9.0
